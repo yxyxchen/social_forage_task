@@ -20,8 +20,7 @@ expInfo['expName'] = expName
 expInfo['date'] = time.strftime("%d%m%Y")
 
 # set the working path
-wkPath = os.sep + 'Users' + os.sep + 'cyx' + os.sep + \
-'Documents' + os.sep + 'social_forage_task'
+wkPath = os.getcwd()
 os.chdir(wkPath)
 
 # create the data folder
@@ -62,10 +61,17 @@ expInfo['frameDur'] = expInfo['frameDur']
 # create stimuli
 stims = sf.getStims(expParas, win)
 
+# generate the reward sequences and the handling time sequences 
+    htSeq_ = lapply(1 : nCondition, function(i) {
+      condition = conditions[i]
+      tempt = as.vector(replicate(nChunkMax, sample(hts_[[condition]], chunkSize)))
+      tempt[1 : nTrialMax]
+    })
+    
 # for a specific trial
 for i in range(3):
-    scheduledHt = 3
-    scheduledRwd = 3.5 if rand.normal(1) < 0 else 0.5
+    scheduledHt = htSeq[i]
+    scheduledRwd = rwdSeq[i]
     sf.showTrial(win, expParas, expInfo, thisExp, stims, scheduledHt, scheduledRwd)
 
 

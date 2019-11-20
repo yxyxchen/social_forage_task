@@ -169,19 +169,18 @@ def showTrial(win, expParas, expInfo, thisExp, stims, scheduledHt, scheduledRwd)
 	    win.flip()
 
 
-	# black screen
-	nBsFrame = math.ceil(expParas['bsSec'] / expInfo['frameDur'])
-	for frameIdx in range(nBsFrame):
-	    whiteTimeBar.draw()
-	    elapsedTravelSec = (frameIdx + 1) * expInfo['frameDur'] + expParas['fbSec']
-	    leftTravelSec = expParas['travelSec'] - elapsedTravelSec
-	    blueTimeBar = visual.Rect(win = win, width = leftTravelSec * 0.06, height = 0.03,\
-	    units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-	    pos = (- elapsedTravelSec * 0.06 / 2, -0.35))
-	    blueTimeBar.draw()
-	    win.flip()	
-	# data logging
-	outputs = {'scheduledHt' : scheduledHt, 'scheduledRwd' : scheduledRwd, 'response' : response, 'responseRT' : responseRT, 'trialEarnings' : trialEarnings}
-	return outputs
 
+	# data logging
+	thisExp.addData('BlockNumber',blockIdx+1)
+	thisExp.addData('TrialNumber',trialIdx)
+	thisExp.addData('ScheduledDelay',scheduledDelay)
+	thisExp.addData('ReadyOnsetTime',readyOnsetTime)
+	thisExp.addData('TokenOnsetTime',tokenOnsetTime)
+	thisExp.addData('RewardOnsetTime',rewardOnsetTime)
+	thisExp.addData('PriorTrialFeedbackOnsetTime',feedbackOnsetTime)
+	    # the current trial's feedback hasn't yet appeared
+	thisExp.addData('ResponseClockTime',responseClockTime)
+	thisExp.addData('TrialEarnings',trialEarnings)
+	thisExp.addData('TotalEarned',totalEarned)
+	thisExp.nextEntry()
 
