@@ -51,9 +51,9 @@ expInfo['frameRate']=win.getActualFrameRate()
 print('measured frame rate: ')
 print(expInfo['frameRate'])
 if expInfo['frameRate']!=None:
-    expInfo['frameDur'] = 1.0/round(expInfo['frameRate'])
+    expInfo['frameDur'] = 0.5/round(expInfo['frameRate'])
 else:
-    expInfo['frameDur'] = 1.0/60.0 # couldn't get a reliable measure so guess
+    expInfo['frameDur'] = 0.5/60.0 # couldn't get a reliable measure so guess
 expInfo['frameDur'] = expInfo['frameDur']
 
 
@@ -62,26 +62,22 @@ expInfo['frameDur'] = expInfo['frameDur']
 stims = sf.getStims(expParas, win)
 
 # # generate the reward sequences and the handling time sequences 
- htSeq_ = {}
- rwdSeq_ = {}
- for c in range(expParas['nConditions']):
-    condition = expParas['conditions'][c]
-    htSeq_ = 
-    
- lapply(1 : expParas['nCondition'], function(i) {
-   condition = conditions[i]
-   tempt = as.vector(replicate(nChunkMax, sample(hts_[[condition]], chunkSize)))
-   tempt[1 : nTrialMax]
- })
+seqResults = sf.getSeqs(expParas)
+rwdSeq_ = seqResults['rwdSeq_']
+htSeq_ = seqResults['htSeq_']
+
+isSocial = False
     
 # for a specific trial
-for i in range(3):
-    scheduledHt = 3
-    scheduledRwd = 3.5
-    sf.showTrial(win, expParas, expInfo, thisExp, stims, scheduledHt, scheduledRwd)
+for c in range(len(expParas['conditions'])):
+    condition = expParas['conditions'][c]
+    rwdSeq = rwdSeq_[condition]
+    htSeq = htSeq_[condition]
+    taskTime = expParas['blockSec'] * c 
+    sf.showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime, isSocial)
 
 
-
+ 
 
 
 
