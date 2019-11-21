@@ -61,17 +61,23 @@ expInfo['frameDur'] = expInfo['frameDur']
 # create stimuli
 stims = sf.getStims(expParas, win)
 
-# generate the reward sequences and the handling time sequences 
-    htSeq_ = lapply(1 : nCondition, function(i) {
-      condition = conditions[i]
-      tempt = as.vector(replicate(nChunkMax, sample(hts_[[condition]], chunkSize)))
-      tempt[1 : nTrialMax]
-    })
+# # generate the reward sequences and the handling time sequences 
+ htSeq_ = {}
+ rwdSeq_ = {}
+ for c in range(expParas['nConditions']):
+    condition = expParas['conditions'][c]
+    htSeq_ = 
+    
+ lapply(1 : expParas['nCondition'], function(i) {
+   condition = conditions[i]
+   tempt = as.vector(replicate(nChunkMax, sample(hts_[[condition]], chunkSize)))
+   tempt[1 : nTrialMax]
+ })
     
 # for a specific trial
 for i in range(3):
-    scheduledHt = htSeq[i]
-    scheduledRwd = rwdSeq[i]
+    scheduledHt = 3
+    scheduledRwd = 3.5
     sf.showTrial(win, expParas, expInfo, thisExp, stims, scheduledHt, scheduledRwd)
 
 

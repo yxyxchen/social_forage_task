@@ -15,14 +15,42 @@ def getExpParas():
 	expParas['decsSec'] = 2
 	expParas['travelSec'] = 4
 	expParas['fbSec'] = 2
-	expParas['rwdMu'] = 2
-	expParas['rwdSigma'] = 0.1
-	expParas['rwdUpper'] = 2.2
-	expParas['rwdLower'] = 1.8
+	expParas['rwd'] = 2
+	expParas['rwdHigh'] = 3.5
+	expParas['rwdLow'] = 0.5
 	expParas['missLoss'] = -2
-	expParas['bsSec'] = expParas['travelSec'] - expParas['fbSec'] - expParas['decsSec']
+	expParas['blockSec'] = 600
+	hts_ = {
+	'rich' : np.array([18, 13, 10, 2, 2, 2, 2]),
+	'poor' : np.aray([18, 18, 18, 18, 13, 10, 2])
+	}
+	expParasp['hts_']
 	return expParas
 
+def getSeqs(expParas):
+	blockSec = expParas['blockSec']
+	iti = expParas['iti']
+	rwdHigh = expParas['rwdHigh']
+	rwdLow = expParas['rwdLow']
+	rwd = expParas['rwd']
+	unqHts = expParas['unqHts']
+	conditions = expParas['conditions']
+	hts_ = expParas['hts_']
+
+	# creat new variables
+	nCondition = len(conditions)
+	chunkSize = len(hts_['rich'])
+	nTrialMax = blockSec / iti
+	nChunkMax = np.ceil(nTrialMax / chunkSize)
+	rwds = [np.repeat(rwdLow, chunkSize), rep(rwdHigh, chunkSize)]
+
+	rwdSeq_ = {}
+	seqSeq_ = {}
+	for c in range(nCondition):
+		condition = conditions[c]
+		junk = [random.sample(rwds) for i in range(np.ceil(nChunkMax / 2))]
+		rwdSeq_[condition] = junk[1 : nTrialMax]
+		seqSeq_[condition] = 
 
 ##### create stimuli #####
 def getStims(expParas, win):

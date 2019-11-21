@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+import math
 
 # reward paras
 rwd = 2
@@ -13,6 +14,7 @@ nCondition = len(conditions)
 hts_ = {"rich": np.array([18, 13, 10, 2, 2, 2, 2]),\
 "poor" : np.array([18, 18, 18, 18, 13, 10, 2])}
 unqHts = np.unique(hts_['poor'])
+nUnqHt = len(unqHts)
 chunkSize = len(hts_['poor'])
 
 # calculate the optimal longRunRate 
@@ -40,30 +42,41 @@ for i in range(nCondition):
 # block paras
 blockSec = 600
 nTrialMax = blockSec / iti
-nChunkMax = ceil(nTrialMax / chunkSize)
+nChunkMax = math.ceil(nTrialMax / chunkSize)
 
 # tGrid paras
 tGridGap = 1
 
 
 # save all the objects 
-expParas = {\
-	'rwd' = rwd,
-	'iti' = iti,
-	'conditions' = conditions,
-	'nCondition' = nCondition,
-	'hts_' = hts_,
-	'unqHts' = unqHts,
-	'nUnqHt'
-	'chunkSize' = chunkSize,
-	'optimLongRunRate_' = optimLongRunRate_,
-	'optimMaxAcpHt_' = optimMaxAcpHt_,
-	'blockSec' = blockSec,
-	'nTrialMax' = nTrialMax,
-	'nChunkMax' = nChunkMax,
-	'tGridGap' = tGridGap\
+expParas = {
+'rwd' : rwd,
+'iti':iti,
+'conditions' : conditions,
+'nCondition' : nCondition,
+'hts_' : hts_,
+'unqHts' : unqHts,
+'nUnqHt' : nUnqHt,
+'chunkSize' : chunkSize,
+'optimLongRunRate_' : optimLongRunRate_,
+'optimMaxAcpHt_' : optimMaxAcpHt_,
+'blockSec' : blockSec,
+'nTrialMax' : nTrialMax,
+"nChunkMax" : nChunkMax, 
+"tGridGap" : tGridGap
 }
 
-with open('expParas', 'wb') as expParasFile:
-	pickle.dump(expParas, expParasFile)
+with open('expParas.dic', 'wb') as expParasFile:
+	pickle.dump(, expParasFile)
+
+
+
+
+
+
+import pickle
+with open('expParas.dic', 'rb') as expParasFile:
+    expParas = pickle.load(expParasFile)
+
+print(expParas)
 
