@@ -67,48 +67,34 @@ def getSeqs(expParas):
 ##### create stimuli #####
 def getStims(expParas, win):
 # create token stimuli
-	tokens = {}
-	tokens['grey'] = visual.Circle(win=win, radius=0.1, edges=64, units='height',
-	    lineWidth=2, lineColor=[1,1,1], fillColor=[0.5,0.5,0.5], pos=(0, 0), interpolate=True,
-	    name='grey')
-	tokens['red'] = visual.Circle(win=win, radius=0.1, edges=64, units='height',
-	    lineWidth=2, lineColor=[1,1,1], fillColor=[0.68627451, -0.62352941, -0.69411765], pos=(0, 0), interpolate=False,
-	    name='red')
-	tokens['green'] = visual.Circle(win=win, radius=0.1, edges=64, units='height',
-	    lineWidth=2, lineColor=[1,1,1], fillColor=[-0.79607843,  0.19215686, -0.37254902], pos=(0, 0), interpolate=False,
-	    name='green')
-	# create countDown stimuli 
-	countDowns = {}
+	trashCan = visual.Rect(win = win, width = 0.12, height = (max(expParas['unqHts']) + 2)  * 0.015,
+	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [0, 0, 0], pos = (0, -0.0))
+
+	recycleSymbol = visual.ImageStim(win, image="recycle.eps", units='height', pos=(0.0, 0.0),
+		size=0.2, ori=0.0)
+	
+	trashes = {}
 	for i in range(max(expParas['unqHts']) + 1):
-	    keyName = f'countDown{i:d}'
-	    if i > 0:
-	        countDowns[str(i)] =visual.TextStim(win=win, ori=0, name= keyName,
-	            text= str(i) + "s", font=u'Arial', bold = True, units='height',
-	            pos=[0, 0], height=0.12, wrapWidth=None,
-	            color=[1,1,1], colorSpace='rgb', opacity=1, depth=0.0)
-	    else:
-	        countDowns[str(i)] =visual.ImageStim(win=win, ori=0, name= keyName,
-	        image = "check.png",
-	        pos=[0, 0], size = 0.2)
+		keyName = f'trash{i:d}'
+		trashes[str(i)] = visual.Rect(win=win, width = 0.12, height = i  * 0.03,
+			units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [0.5, 0.5, 0.5], pos = (0, -0.15))
 
 	# create the traveling time bar 
 	whiteTimeBar = visual.Rect(win = win, width = expParas['travelSec'] * 0.06, height = 0.03,
-	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1],\
-	pos = (0, -0.35))
+	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, -0.35))
 	# create the baseLine
 	baseLine = visual.Rect(win = win, width = 0.4, height = 0.01,\
 	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1],pos = (0, -0.1))
 	# outputs 
-	outputs = {'tokens' : tokens, 'countDowns' : countDowns, 'whiteTimeBar' : whiteTimeBar,\
+	outputs = {'trashCan' : trashCan, 'recycleSymbol' : recycleSymbol, "trashes" : trashes, 'whiteTimeBar' : whiteTimeBar,\
 	'baseLine' : baseLine}
 	return(outputs)
 
 def showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime, isSocial):
-	
-
     # parse stims
-	tokens = stims['tokens']
-	countDowns = stims['countDowns']
+	trashCan = stims['trashCan']
+	trashes = stims['trashes']
+	recycleSymbol = stims['recycleSymbol']
 	whiteTimeBar = stims['whiteTimeBar']
 	baseLine = stims['baseLine']
 
@@ -137,8 +123,8 @@ def showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime, i
 		        responseFrameIdx = frameIdx
 		        responseClockTime = keysNow[0][1]
 		    # draw stimuli
-		    tokens['grey'].draw()
-		    countDowns[str(scheduledHt)].draw()
+		    trashCan.draw()
+		    recycleSymbol.draw()
 		    # draw the time bar
 		    whiteTimeBar.draw()
 		    leftDecsSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
@@ -165,20 +151,20 @@ def showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime, i
 		if responded == True:
 		    for frameIdx in range(responseFrameIdx+1, nDescFrame):
 		        if response == 1:
-		            tokens['green'].draw()
-		            countDowns[str(scheduledHt)].draw()
+		        	trashCan.draw()
+		        	recycleSymbol.draw()
 		        else:
-		            tokens['red'].draw()
-		            countDowns[str(scheduledHt)].draw()
+		        	trashCan.draw()
+		        	recycleSymbol.draw()
 		        win.flip()
 
 		# count down if the option is accepted
 		if response == 1:
 		    nCountDownFrame = math.ceil(scheduledHt / expInfo['frameDur'])
 		    for frameIdx in range(nCountDownFrame):
-		        tokens['green'].draw()
+		        trashCan.draw()
 		        countDownTime = scheduledHt - (frameIdx + 1) * expInfo['frameDur'] # time for the next win flip
-		        countDowns[str(math.floor(countDownTime))].draw()
+		        trash[str(math.floor(countDownTime))].draw()
 		        win.flip()
 
 		# trialEarnings and spentHt
