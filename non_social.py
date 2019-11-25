@@ -74,7 +74,7 @@ for c in range(len(expParas['conditions'])):
     rwdSeq = rwdSeq_[condition]
     htSeq = htSeq_[condition]
     taskTime = expParas['blockSec'] * c 
-    sf.showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime, isSocial)
+    sf.showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime)
 
 
  
