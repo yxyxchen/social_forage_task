@@ -80,16 +80,39 @@ def getStims(expParas, win):
 		trashes[str(i)] = visual.Rect(win=win, width = 0.295, height = i  * 0.02,
 			units = "height", lineWidth = 4, lineColor = [1, 1, 1], fillColor = [0.5, 0.5, 0.5],\
 			pos = (0, -(max(expParas['unqHts']) + 2 -i) / 2 * 0.02))
-	
-	recycleMan = visual.ImageStim(win, image="recycle_man.png", units='height', pos=(0.5, 0.1),
-		size=0.2, ori=0.0)
 
 	# create the traveling time bar 
 	whiteTimeBar = visual.Rect(win = win, width = expParas['travelSec'] * 0.06, height = 0.03,
 	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, -0.35))
 	# return outputs
 	outputs = {'trashCan' : trashCan, 'recycleSymbol' : recycleSymbol, "trashes" : trashes,\
-	"recycleMan" : recycleMan, 'whiteTimeBar' : whiteTimeBar}
+	'whiteTimeBar' : whiteTimeBar}
+	return(outputs)
+
+
+##### create stimuli #####
+def getStimsSocial(expParas, win):
+	selfCenter = -0.3
+# create token stimuli
+	trashCan = visual.Rect(win = win, width = 0.3, height = (max(expParas['unqHts']) + 2)  * 0.02,
+	units = "height", lineWidth = 4, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (selfCenter , 0.0))
+
+	recycleSymbol = visual.ImageStim(win, image="recycle.png", units='height', pos=(selfCenter , 0.0),
+		size=0.1, ori=0.0, color = "black")
+	
+	trashes = {}
+	for i in range(max(expParas['unqHts']) + 1):
+		keyName = f'trash{i:d}'
+		trashes[str(i)] = visual.Rect(win=win, width = 0.295, height = i  * 0.02,
+			units = "height", lineWidth = 4, lineColor = [1, 1, 1], fillColor = [0.5, 0.5, 0.5],\
+			pos = (selfCenter , -(max(expParas['unqHts']) + 2 -i) / 2 * 0.02))
+
+	# create the traveling time bar 
+	whiteTimeBar = visual.Rect(win = win, width = expParas['travelSec'] * 0.06, height = 0.03,
+	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (selfCenter, -0.35))
+	# return outputs
+	outputs = {'trashCan' : trashCan, 'recycleSymbol' : recycleSymbol, "trashes" : trashes,\
+	'whiteTimeBar' : whiteTimeBar}
 	return(outputs)
 
 
@@ -251,6 +274,7 @@ def showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime):
 
 
 def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime):
+	selfCenter = -0.3
  # parse stims
 	trashCan = stims['trashCan']
 	trashes = stims['trashes']
@@ -296,7 +320,7 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 			elapsedSec = expParas['travelSec'] - leftSec
 			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.06, height = 0.03,\
 				units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-				pos = (- elapsedSec * 0.06 / 2, -0.35))
+				pos = (- elapsedSec * 0.06 / 2 + selfCenter, -0.35))
 			blueTimeBar.draw()
 			# update the window
 			win.flip()
@@ -322,7 +346,7 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 					elapsedSec = expParas['travelSec'] - leftSec
 					blueTimeBar = visual.Rect(win = win, width = leftSec * 0.06, height = 0.03,\
 						units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-						pos = (- elapsedSec * 0.06 / 2, -0.35))
+						pos = (- elapsedSec * 0.06 / 2 + selfCenter, -0.35))
 					blueTimeBar.draw()
 
 				else:
@@ -335,7 +359,7 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 					elapsedSec = expParas['travelSec'] - leftSec
 					blueTimeBar = visual.Rect(win = win, width = leftSec * 0.06, height = 0.03,\
 						units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-						pos = (- elapsedSec * 0.06 / 2, -0.35))
+						pos = (- elapsedSec * 0.06 / 2 + selfCenter, -0.35))
 					blueTimeBar.draw()
 				win.flip()
 
@@ -374,10 +398,10 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 		# create trialEarnBar
 		trialEarnText = visual.TextStim(win=win, ori=0,
 		text= '' + str(trialEarnings), font=u'Arial', bold = True, units='height',\
-		pos=[0, 0], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 	
+		pos=[selfCenter, 0], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 	
 		trialEarnTextOther = visual.TextStim(win=win, ori=0,\
 			text= '' + str(round(trialEarningsOther[0], 1)), font=u'Arial', bold = True, units='height',\
-			pos=[0,0], height=0.1,color=[-0.39607843,  0.14509804, -0.74117647], colorSpace='rgb') 
+			pos=[-selfCenter,0], height=0.1,color=[-0.39607843,  0.14509804, -0.74117647], colorSpace='rgb') 
 
 
 	# give the feedback 
@@ -392,7 +416,7 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 			leftSec = expParas['travelSec'] - elapsedSec
 			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.06, height = 0.03,\
 			units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-			pos = (- elapsedSec * 0.06 / 2, -0.35))
+			pos = (- elapsedSec * 0.06 / 2 + selfCenter, -0.35))
 			blueTimeBar.draw()
 			win.flip()
 
@@ -403,7 +427,7 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 			leftSec = expParas['travelSec'] - elapsedSec
 			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.06, height = 0.03,\
 			units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-			pos = (- elapsedSec * 0.06 / 2, -0.35))
+			pos = (- elapsedSec * 0.06 / 2 + selfCenter, -0.35))
 			blueTimeBar.draw()
 			win.flip()
 
@@ -415,7 +439,7 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 			leftSec = expParas['travelSec'] - elapsedSec
 			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.06, height = 0.03,\
 			units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-			pos = (- elapsedSec * 0.06 / 2, -0.35))
+			pos = (- elapsedSec * 0.06 / 2 + selfCenter, -0.35))
 			blueTimeBar.draw()
 			win.flip()
 		# data logging
