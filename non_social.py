@@ -51,9 +51,9 @@ expInfo['frameRate']=win.getActualFrameRate()
 print('measured frame rate: ')
 print(expInfo['frameRate'])
 if expInfo['frameRate']!=None:
-    expInfo['frameDur'] = 0.5/round(expInfo['frameRate'])
+    expInfo['frameDur'] = 1/round(expInfo['frameRate'])
 else:
-    expInfo['frameDur'] = 0.5/60.0 # couldn't get a reliable measure so guess
+    expInfo['frameDur'] = 1/60.0 # couldn't get a reliable measure so guess
 expInfo['frameDur'] = expInfo['frameDur']
 
 

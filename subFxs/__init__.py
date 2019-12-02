@@ -18,13 +18,13 @@ def getExpParas():
 	expParas['fbOtherSec'] = 2
 	expParas['travelSec'] = 11
 	expParas['rwd'] = 2
-	expParas['rwdHigh'] = 2
-	expParas['rwdLow'] = 2
+	expParas['rwdHigh'] = 3
+	expParas['rwdLow'] = 1
 	expParas['missLoss'] = -2
 	expParas['blockSec'] = 600
 	hts_ = {
-	'rich' : np.array([40, 25, 22, 2, 2, 2, 2]),
-	'poor' : np.array([40, 25, 25, 25, 25, 22, 2])
+	'rich' : np.array([40, 28, 22, 2, 2, 2, 2]),
+	'poor' : np.array([40, 28, 28, 28, 28, 22, 2])
 	}
 	expParas['hts_'] = hts_
 	return expParas
