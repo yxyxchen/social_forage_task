@@ -133,7 +133,7 @@ def showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime):
 	whiteTimeBar = stims['whiteTimeBar']
 	fbCircle = stims['fbCircle']
 	
-	for i in range(2):
+	for i in range(10):
 		scheduledHt = htSeq[i]
 		scheduledRwd = rwdSeq[i]
 
@@ -297,7 +297,7 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 	trialEarningsOnGridOther = trialEarningsOnGridOther.values
 	taskGrid = np.arange(0, expParas['blockSec'] * len(expParas['conditions']) + 1, step = 1)
 	
-	for i in range(2):
+	for i in range(10):
 		scheduledHt = htSeq[i]
 		scheduledRwd = rwdSeq[i]
 
