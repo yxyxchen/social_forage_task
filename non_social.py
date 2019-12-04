@@ -33,7 +33,7 @@ fileName =  dataPath + os.sep + u'%s_%s_%s' %(expInfo['participant'], expInfo['d
  
 # use an ExperimentHandler to handle saving data
 thisExp = data.ExperimentHandler(name=expName, version='',
-    extraInfo=expInfo, runtimeInfo=None, originPath=None,
+    runtimeInfo=None, originPath=None,
     savePickle=True, saveWideText=True, dataFileName=fileName)
 
 # experiment paras 
@@ -69,12 +69,10 @@ htSeq_ = seqResults['htSeq_']
 isSocial = False
     
 # for a specific trial
-for c in range(len(expParas['conditions'])):
-    condition = expParas['conditions'][c]
-    rwdSeq = rwdSeq_[condition]
-    htSeq = htSeq_[condition]
-    taskTime = expParas['blockSec'] * c 
-    sf.showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime)
+trialOutput = sf.showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_)
+thisExp = trialOutput['thisExp']
+thisExp.saveAsWideText(filename+'.csv')
+thisExp.saveAsPickle(filename)
 
 
  

@@ -125,162 +125,203 @@ def getStimsSocial(expParas, win):
 	return(outputs)
 
 
-def showTrial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime):
- # parse stims
+def showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_):
+	# parse stims
 	trashCan = stims['trashCan']
 	trashes = stims['trashes']
 	recycleSymbol = stims['recycleSymbol']
 	whiteTimeBar = stims['whiteTimeBar']
 	fbCircle = stims['fbCircle']
-	
-	for i in range(10):
-		scheduledHt = htSeq[i]
-		scheduledRwd = rwdSeq[i]
 
-		# wait for the decision 
-		responded = False
-		frameIdx = 0
-		nDecsFrame = math.ceil(expParas['decsSec'] / expInfo['frameDur'])
+	# calcualte the number of frames for key events
+	nFbFrame = math.ceil((expParas['travelSec'] - expParas['decsSec']) / expInfo['frameDur'])
+	fbBeginFIdx = math.ceil(0.5 / expInfo['frameDur'])
+	fbEndFIdx = math.ceil((0.5 + expParas['fbSelfSec']) / expInfo['frameDur'])
+	nDecsFrame = math.ceil(expParas['decsSec'] / expInfo['frameDur'])
+
+	
+	for blockIdx in range(len(expParas['conditions'])):
+		condition = expParas['conditions'][blockIdx]
+		rwdSeq = rwdSeq_[condition]
+		htSeq = htSeq_[condition]
+		taskTime = expParas['blockSec'] * blockIdx
+		
+		blockTime = 0
+		trialIdx = 0
+
+		# create the message
+		if blockIdx == 0:
+			message = visual.TextStim(win=win, ori=0,
+			text= 'Press Any Key to Start', font=u'Arial', bold = True, units='height',\
+			pos=[0, 0], height=0.2, color= 'white', colorSpace='rgb') 
+		else:
+			message = visual.TextStim(win=win, ori=0,
+			text= 'Press Any Key to Start the Next Block', font=u'Arial', bold = True, units='height',\
+			pos=[0, 0], height=0.2, color= 'white', colorSpace='rgb') 
 
 		# clear all events
 		event.clearEvents() 
-
-		while (frameIdx < nDecsFrame) and (responded == False):
+		# wait for any key to start the game
+		responded = False
+		while responded == False:
 			# detect keys
-			keysNow = event.getKeys(keyList={'k', 'd'}, modifiers=False, timeStamped=True)
+			keysNow = event.getKeys()
 			if len(keysNow) > 0:
 				responded = True
-				response = 1 if keysNow[0][0] == "k" else 0 # 1 for accept, 0 for reject 
-				responseRT = (frameIdx + 1) * expInfo['frameDur']
-				responseFrameIdx = frameIdx
-				responseClockTime = keysNow[0][1]
-			# draw stimuli
-			trashCan.draw()
-			trashes[str(scheduledHt)].draw()
-			recycleSymbol.color = "black"
-			recycleSymbol.draw()
-			# draw the time bar
-			whiteTimeBar.draw()
-			leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
-			elapsedSec = expParas['travelSec'] - leftSec
-			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-				units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-				pos = (- elapsedSec * 0.03 / 2, -0.35))
-			blueTimeBar.draw()
-			# update the window
+			message.draw()
 			win.flip()
-			# update the frame idx
-			frameIdx += 1
 
-		# record the response 
-		if responded == False:
-			response = -1 # -1 for miss
-			responseClockTime = np.nan
-			responseRT = np.nan
 
-		# update the decision 
-		if responded == True:
-			for frameIdx in range(responseFrameIdx+1, nDecsFrame):
-				if response == 1:
+		# plot the first searching time 
+		for frameIdx in range(nFbFrame):
+			whiteTimeBar.draw()
+			elapsedSec = (frameIdx + 1) * expInfo['frameDur']
+			leftSec = expParas['travelSec'] - elapsedSec
+			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
+			units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
+			pos = (- elapsedSec * 0.03 / 2, -0.35))
+			blueTimeBar.draw()
+			win.flip()
+		blockTime = blockTime + expParas['travelSec'] - expParas['decsSec']
+
+		while blockTime < 60:
+			trialIdx = trialIdx + 1
+			scheduledHt = htSeq[trialIdx]
+			scheduledRwd = rwdSeq[trialIdx]
+
+			# wait for the decision 
+			responded = False
+			frameIdx = 0
+			# clear all events
+			event.clearEvents() 
+
+			while (frameIdx < nDecsFrame) and (responded == False):
+				# detect keys
+				keysNow = event.getKeys(keyList={'k', 'd'}, modifiers=False, timeStamped=True)
+				if len(keysNow) > 0:
+					responded = True
+					response = 1 if keysNow[0][0] == "k" else 0 # 1 for accept, 0 for reject 
+					responseRT = (frameIdx + 1) * expInfo['frameDur']
+					responseFrameIdx = frameIdx
+					responseBlockTime = blockTime + responseRT
+				# draw stimuli
+				trashCan.draw()
+				trashes[str(scheduledHt)].draw()
+				recycleSymbol.color = "black"
+				recycleSymbol.draw()
+				# draw the time bar
+				whiteTimeBar.draw()
+				leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
+				elapsedSec = expParas['travelSec'] - leftSec
+				blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
+					units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
+					pos = (- elapsedSec * 0.03 / 2, -0.35))
+				blueTimeBar.draw()
+				# update the window
+				win.flip()
+				# update the frame idx
+				frameIdx += 1
+
+			# record the response 
+			if responded == False:
+				response = -1 # -1 for miss
+				responseClockTime = responseBlockTime + expParas['decsSec']
+				responseRT = np.nan
+
+			# update the decision 
+			if responded == True:
+				for frameIdx in range(responseFrameIdx+1, nDecsFrame):
+					if response == 1:
+						trashCan.draw()
+						trashes[str(scheduledHt)].draw()
+						recycleSymbol.color = "blue"
+						recycleSymbol.draw()
+						whiteTimeBar.draw()
+						leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
+						elapsedSec = expParas['travelSec'] - leftSec
+						blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
+							units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
+							pos = (- elapsedSec * 0.03 / 2, -0.35))
+						blueTimeBar.draw()
+
+					else:
+						trashCan.draw()
+						trashes[str(scheduledHt)].draw()
+						recycleSymbol.color = "red"
+						recycleSymbol.draw()
+						whiteTimeBar.draw()
+						leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
+						elapsedSec = expParas['travelSec'] - leftSec
+						blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
+							units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
+							pos = (- elapsedSec * 0.03 / 2, -0.35))
+						blueTimeBar.draw()
+					win.flip()
+
+			# count down if the option is accepted
+			if response == 1:
+				nCountDownFrame = math.ceil(scheduledHt / expInfo['frameDur'])
+				for frameIdx in range(nCountDownFrame):
 					trashCan.draw()
-					trashes[str(scheduledHt)].draw()
+					countDownTime = scheduledHt - (frameIdx + 1) * expInfo['frameDur'] # time for the next win flip
+					trashes[str(math.floor(countDownTime))].draw()
 					recycleSymbol.color = "blue"
 					recycleSymbol.draw()
-					whiteTimeBar.draw()
-					leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
-					elapsedSec = expParas['travelSec'] - leftSec
-					blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-						units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-						pos = (- elapsedSec * 0.03 / 2, -0.35))
-					blueTimeBar.draw()
+					win.flip()
 
-				else:
-					trashCan.draw()
-					trashes[str(scheduledHt)].draw()
-					recycleSymbol.color = "red"
-					recycleSymbol.draw()
-					whiteTimeBar.draw()
-					leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
-					elapsedSec = expParas['travelSec'] - leftSec
-					blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-						units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-						pos = (- elapsedSec * 0.03 / 2, -0.35))
-					blueTimeBar.draw()
+			# trialEarnings and spentHt
+			if response == 1:
+				trialEarnings = scheduledRwd
+				spentHt = scheduledHt
+			elif response == 0:
+				trialEarnings  = 0
+				spentHt = 0
+			else:
+				trialEarnings = expParas['missLoss']
+				spentHt = 0
+
+
+			# update time 
+			preTaskTime = taskTime
+			taskTime = taskTime + spentHt + expParas['travelSec']
+			blockTime = blockTime + spentHt + expParas['travelSec']	
+
+			# create trialEarnBar
+			trialEarnText = visual.TextStim(win=win, ori=0,
+			text= '' + str(trialEarnings), font=u'Arial', bold = True, units='height',\
+			pos=[0, 0], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 	
+
+
+		# give the feedback 
+			for frameIdx in range(nFbFrame):
+				if frameIdx >= fbBeginFIdx & frameIdx < fbEndFIdx:
+					fbCircle.draw()
+					trialEarnText.draw()
+				
+				whiteTimeBar.draw()
+				elapsedSec = (frameIdx + 1) * expInfo['frameDur']
+				leftSec = expParas['travelSec'] - elapsedSec
+				blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
+				units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
+				pos = (- elapsedSec * 0.03 / 2, -0.35))
+				blueTimeBar.draw()
 				win.flip()
 
-		# count down if the option is accepted
-		if response == 1:
-			nCountDownFrame = math.ceil(scheduledHt / expInfo['frameDur'])
-			for frameIdx in range(nCountDownFrame):
-				trashCan.draw()
-				countDownTime = scheduledHt - (frameIdx + 1) * expInfo['frameDur'] # time for the next win flip
-				trashes[str(math.floor(countDownTime))].draw()
-				recycleSymbol.color = "blue"
-				recycleSymbol.draw()
-				win.flip()
-
-		# trialEarnings and spentHt
-		if response == 1:
-			trialEarnings = scheduledRwd
-			spentHt = scheduledHt
-		elif response == 0:
-			trialEarnings  = 0
-			spentHt = 0
-		else:
-			trialEarnings = expParas['missLoss']
-			spentHt = 0
-
-
-		# update time 
-		preTaskTime = taskTime
-		taskTime = taskTime + spentHt + expParas['travelSec']
-			
-
-		# create trialEarnBar
-		trialEarnText = visual.TextStim(win=win, ori=0,
-		text= '' + str(trialEarnings), font=u'Arial', bold = True, units='height',\
-		pos=[0, 0], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 	
-
-
-	# give the feedback 
-		nFbFrameSelf = math.ceil(expParas['fbSelfSec'] / expInfo['frameDur'])
-		nBlankFrame = math.ceil((expParas['travelSec'] - expParas['fbSelfSec'] - expParas['decsSec'])/ expInfo['frameDur'])
-		for frameIdx in range(nFbFrameSelf):
-			fbCircle.draw()
-			trialEarnText.draw()
-			whiteTimeBar.draw()
-			elapsedSec = (frameIdx + 1) * expInfo['frameDur']
-			leftSec = expParas['travelSec'] - elapsedSec
-			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-			units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-			pos = (- elapsedSec * 0.03 / 2, -0.35))
-			blueTimeBar.draw()
-			win.flip()
-
-		for frameIdx in range(nFbFrameSelf, nFbFrameSelf + nBlankFrame):
-			whiteTimeBar.draw()
-			elapsedSec = (frameIdx + 1) * expInfo['frameDur']
-			leftSec = expParas['travelSec'] - elapsedSec
-			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-			units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-			pos = (- elapsedSec * 0.03 / 2, -0.35))
-			blueTimeBar.draw()
-			win.flip()
-
-		# data logging
-		# thisExp.addData('BlockNumber',blockIdx+1)
-		# thisExp.addData('TrialNumber',trialIdx)
-		# thisExp.addData('ScheduledDelay',scheduledDelay)
-		# thisExp.addData('ReadyOnsetTime',readyOnsetTime)
-		# thisExp.addData('TokenOnsetTime',tokenOnsetTime)
-		# thisExp.addData('RewardOnsetTime',rewardOnsetTime)
-		# thisExp.addData('PriorTrialFeedbackOnsetTime',feedbackOnsetTime)
-		#     # the current trial's feedback hasn't yet appeared
-		# thisExp.addData('ResponseClockTime',responseClockTime)
-		# thisExp.addData('TrialEarnings',trialEarnings)
-		# thisExp.addData('TotalEarned',totalEarned)
-		# thisExp.nextEntry()
-
+			# data logging, only if the response is made before the block end
+			if responseBlockTime <= expParas['blockSec']:
+				thisExp.addData('blockIdx',blockIdx + 1) # since blockIdx starts from 0 
+				thisExp.addData('trialIdx',trialIdx)
+				thisExp.addData('scheduledHt',scheduledHt)
+				thisExp.addData('scheduledRwd',scheduledRwd)
+				thisExp.addData('spentHt', spentHt)
+				thisExp.addData('responseBlockTime', responseBlockTime)
+				thisExp.addData('trialEarnings', trialEarnings)
+				thisExp.addData('responseRT', responseRT)
+				thisExp.addData('blockTime', blockTime)
+				thisExp.nextEntry()
+	
+	trialOutput = {'thisExp':thisExp}
+	return trialOutput
 
 def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime):
 	selfCenter = -0.15
@@ -317,7 +358,6 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 				response = 1 if keysNow[0][0] == "k" else 0 # 1 for accept, 0 for reject 
 				responseRT = (frameIdx + 1) * expInfo['frameDur']
 				responseFrameIdx = frameIdx
-				responseClockTime = keysNow[0][1]
 			# draw stimuli
 			trashCan.draw()
 			trashes[str(scheduledHt)].draw()
@@ -339,7 +379,6 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 		# record the response 
 		if responded == False:
 			response = -1 # -1 for miss
-			responseClockTime = np.nan
 			responseRT = np.nan
 
 		# update the decision 
