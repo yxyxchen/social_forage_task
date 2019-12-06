@@ -14,14 +14,15 @@ def getExpParas():
 	expParas['conditions'] = ['rich', 'poor']
 	expParas['unqHts'] = [40, 25, 22, 2]
 	expParas['decsSec'] = 3
-	expParas['fbSelfSec'] = 2
-	expParas['fbOtherSec'] = 2
+	expParas['fbSelfSec'] = 3
+	expParas['fbOtherSec'] = 3
 	expParas['travelSec'] = 11
 	expParas['rwd'] = 2
 	expParas['rwdHigh'] = 3
 	expParas['rwdLow'] = 1
 	expParas['missLoss'] = -2
-	expParas['blockSec'] = 600
+	expParas['blockSec'] = 30
+	expParas['demoBlockSec'] = 30
 	hts_ = {
 	'rich' : np.array([40, 28, 22, 2, 2, 2, 2]),
 	'poor' : np.array([40, 28, 28, 28, 28, 22, 2])
@@ -53,12 +54,12 @@ def getSeqs(expParas):
 		junk = []
 		for i in range(np.ceil(nChunkMax / 2).astype(int)):
 			junk.extend(random.sample(list(rwds), chunkSize * 2)) 
-		rwdSeq_[condition] = junk[1 : nTrialMax]
+		rwdSeq_[condition] = junk[0 : nTrialMax] # here the data selection doesn't include the tail
 		# ht sequence
 		junk = []
 		for i in range(nChunkMax):
 			junk.extend(random.sample(list(hts), chunkSize))
-		htSeq_[condition] = junk[1 : nTrialMax]
+		htSeq_[condition] = junk[0 : nTrialMax]
 	outputs = {
 		"rwdSeq_" : rwdSeq_,
 		"htSeq_" : htSeq_
@@ -125,7 +126,12 @@ def getStimsSocial(expParas, win):
 	return(outputs)
 
 
-def showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_):
+def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifDemo):
+	if ifDemo:
+		blockSec = expParas['demoBlockSec']
+	else:
+		blockSec = expParas['blockSec']
+
 	# parse stims
 	trashCan = stims['trashCan']
 	trashes = stims['trashes']
@@ -138,26 +144,41 @@ def showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_):
 	fbBeginFIdx = math.ceil(0.5 / expInfo['frameDur'])
 	fbEndFIdx = math.ceil((0.5 + expParas['fbSelfSec']) / expInfo['frameDur'])
 	nDecsFrame = math.ceil(expParas['decsSec'] / expInfo['frameDur'])
-
 	
+	# start the task 
+	totalEarnings = 0
 	for blockIdx in range(len(expParas['conditions'])):
 		condition = expParas['conditions'][blockIdx]
 		rwdSeq = rwdSeq_[condition]
 		htSeq = htSeq_[condition]
-		taskTime = expParas['blockSec'] * blockIdx
-		
+		taskTime = blockSec * blockIdx
 		blockTime = 0
 		trialIdx = 0
 
+		# change the backgroud color 
+		if blockIdx > 0:
+			win.color = 'black'
+
 		# create the message
 		if blockIdx == 0:
-			message = visual.TextStim(win=win, ori=0,
-			text= 'Press Any Key to Start', font=u'Arial', bold = True, units='height',\
-			pos=[0, 0], height=0.2, color= 'white', colorSpace='rgb') 
+			if ifDemo:
+				message = visual.TextStim(win=win, ori=0,
+				text= 'Press Any Key to Start the Practice', font=u'Arial', bold = True, units='height',\
+				pos=[0, 0], height=0.06, color= 'white', colorSpace='rgb') 
+			else:
+				message = visual.TextStim(win=win, ori=0,
+				text= 'Press Any Key to Start', font=u'Arial', bold = True, units='height',\
+				pos=[0, 0], height=0.06, color= 'white', colorSpace='rgb') 				
 		else:
-			message = visual.TextStim(win=win, ori=0,
-			text= 'Press Any Key to Start the Next Block', font=u'Arial', bold = True, units='height',\
-			pos=[0, 0], height=0.2, color= 'white', colorSpace='rgb') 
+			if ifDemo:
+				message = visual.TextStim(win=win, ori=0,
+				text= 'The First Practice Block Ends \n Press Any Key to Start the Second Block Practice in a New Campus', font=u'Arial', bold = True, units='height',\
+				pos=[0, 0], height=0.06, color= 'white', colorSpace='rgb')
+			else:
+				message = visual.TextStim(win=win, ori=0,
+				text= 'The First Block Ends \n Press Any Key to Start the Second Block in a New Campus', font=u'Arial', bold = True, units='height',\
+				pos=[0, 0], height=0.06, color= 'white', colorSpace='rgb')				
+
 
 		# clear all events
 		event.clearEvents() 
@@ -182,13 +203,13 @@ def showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_):
 			pos = (- elapsedSec * 0.03 / 2, -0.35))
 			blueTimeBar.draw()
 			win.flip()
-		blockTime = blockTime + expParas['travelSec'] - expParas['decsSec']
 
-		while blockTime < 60:
-			trialIdx = trialIdx + 1
+
+
+		while blockTime < blockSec:
 			scheduledHt = htSeq[trialIdx]
 			scheduledRwd = rwdSeq[trialIdx]
-
+            
 			# wait for the decision 
 			responded = False
 			frameIdx = 0
@@ -203,7 +224,7 @@ def showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_):
 					response = 1 if keysNow[0][0] == "k" else 0 # 1 for accept, 0 for reject 
 					responseRT = (frameIdx + 1) * expInfo['frameDur']
 					responseFrameIdx = frameIdx
-					responseBlockTime = blockTime + responseRT
+					responseBlockTime = blockTime + responseRT + expParas['travelSec'] - expParas['decsSec']
 				# draw stimuli
 				trashCan.draw()
 				trashes[str(scheduledHt)].draw()
@@ -225,7 +246,7 @@ def showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_):
 			# record the response 
 			if responded == False:
 				response = -1 # -1 for miss
-				responseClockTime = responseBlockTime + expParas['decsSec']
+				responseBlockTime = blockTime + expParas['travelSec']
 				responseRT = np.nan
 
 			# update the decision 
@@ -281,23 +302,29 @@ def showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_):
 				spentHt = 0
 
 
-			# update time 
-			preTaskTime = taskTime
+			# update time and total Earnings
+			totalEarnings = totalEarnings + trialEarnings
+			preTaskTime = taskTime 
 			taskTime = taskTime + spentHt + expParas['travelSec']
-			blockTime = blockTime + spentHt + expParas['travelSec']	
+			blockTime = blockTime + spentHt + expParas['travelSec']	# block time before searching for the next trashcan
 
-			# create trialEarnBar
+			# save the data before searching for the next trashcan
+			expHandler.addData('blockIdx',blockIdx + 1) # since blockIdx starts from 0 
+			expHandler.addData('trialIdx',trialIdx + 1)
+			expHandler.addData('scheduledHt',scheduledHt)
+			expHandler.addData('scheduledRwd',scheduledRwd)
+			expHandler.addData('spentHt', spentHt)
+			expHandler.addData('responseBlockTime', responseBlockTime)
+			expHandler.addData('trialEarnings', trialEarnings)
+			expHandler.addData('responseRT', responseRT)
+			expHandler.addData('blockTime', blockTime)
+			expHandler.nextEntry()
+
+			# give the feedback 
 			trialEarnText = visual.TextStim(win=win, ori=0,
 			text= '' + str(trialEarnings), font=u'Arial', bold = True, units='height',\
 			pos=[0, 0], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 	
-
-
-		# give the feedback 
-			for frameIdx in range(nFbFrame):
-				if frameIdx >= fbBeginFIdx & frameIdx < fbEndFIdx:
-					fbCircle.draw()
-					trialEarnText.draw()
-				
+			for frameIdx in range(nFbFrame):			
 				whiteTimeBar.draw()
 				elapsedSec = (frameIdx + 1) * expInfo['frameDur']
 				leftSec = expParas['travelSec'] - elapsedSec
@@ -305,22 +332,37 @@ def showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_):
 				units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
 				pos = (- elapsedSec * 0.03 / 2, -0.35))
 				blueTimeBar.draw()
+				if (frameIdx >= fbBeginFIdx) & (frameIdx < fbEndFIdx):
+					fbCircle.draw()
+					trialEarnText.draw()
 				win.flip()
+			# move to the next trial 
+			trialIdx = trialIdx + 1
+			
+	# show the ending massage 
+	event.clearEvents() 
+	if ifDemo:
+		message = visual.TextStim(win=win, ori=0,
+		text= 'The Practice Ends \n Press Any Key to Quit', font=u'Arial', bold = True, units='height',\
+		pos=[0, 0], height=0.06, color= 'white', colorSpace='rgb') 
+	else:
+		message = visual.TextStim(win=win, ori=0,
+		text= 'The Experiment Ends \n Press Any Key to Quit', font=u'Arial', bold = True, units='height',\
+		pos=[0, 0], height=0.06, color= 'white', colorSpace='rgb') 		
+	# wait for any key to quit 
+	responded = False
+	while responded == False:
+		# detect keys
+		keysNow = event.getKeys()
+		if len(keysNow) > 0:
+			responded = True
+		message.draw()
+		win.flip()
 
-			# data logging, only if the response is made before the block end
-			if responseBlockTime <= expParas['blockSec']:
-				thisExp.addData('blockIdx',blockIdx + 1) # since blockIdx starts from 0 
-				thisExp.addData('trialIdx',trialIdx)
-				thisExp.addData('scheduledHt',scheduledHt)
-				thisExp.addData('scheduledRwd',scheduledRwd)
-				thisExp.addData('spentHt', spentHt)
-				thisExp.addData('responseBlockTime', responseBlockTime)
-				thisExp.addData('trialEarnings', trialEarnings)
-				thisExp.addData('responseRT', responseRT)
-				thisExp.addData('blockTime', blockTime)
-				thisExp.nextEntry()
-	
-	trialOutput = {'thisExp':thisExp}
+
+	# save the total earnings 
+	trialOutput = {'expHandler':expHandler, 'totalEarnings': totalEarnings} 
+	win.close()
 	return trialOutput
 
 def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskTime):
