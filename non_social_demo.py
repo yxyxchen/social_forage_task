@@ -37,7 +37,7 @@ expInfo['expName'] = expName
 expInfo['date'] = time.strftime("%d%m%Y")
 
 # setup the Window
-win = visual.Window(fullscr=False, screen=0,
+win = visual.Window(fullscr=True, screen=0,
     allowGUI=False, allowStencil=False,
     monitor='testMonitor', color=[0,0,0], colorSpace='rgb',
     blendMode='avg', useFBO=True, pos = [0, 0])
@@ -56,8 +56,8 @@ else:
 expInfo['frameDur'] = expInfo['frameDur']
 
 # create the experiment handlers to save data
-fileName = dataPath + os.sep + u'%s' %(expInfo['participant'])
-headerName = dataPath + os.sep + u'%s_header' %(expInfo['participant'])
+fileName = dataPath + os.sep + u'demo_%s' %(expInfo['participant'])
+headerName = dataPath + os.sep + u'demo_%s_header' %(expInfo['participant'])
 thisHeader = data.ExperimentHandler(name = expName, version = "",\
 runtimeInfo = None, originPath = None, savePickle = False,\
 saveWideText = True, dataFileName = headerName)
@@ -79,13 +79,7 @@ def quitFun():
     thisHeader.addData("frameDur", expInfo['frameDur'])
     thisHeader.addData("frameRate", expInfo['frameRate'])
     thisHeader.addData("seed", seed)
-    try:
-        expData = pd.read_csv(fileName + ".csv")
-        totalEarnings = sum(expData['trialEarnings'])
-    except pandas.errors.EmptyDataError:
-        totalEarnings = 0
-    
-    totalPayments = totalEarnings / 20 
+    totalPayments = totalEarnings / 0
     thisHeader.addData("totalPayments", totalPayments)
     thisHeader.saveAsWideText(headerName+'.csv')
     thisHeader.abort()
@@ -98,11 +92,11 @@ event.globalKeys.add(key = "q", func = quitFun)
 seqResults = sf.getSeqs(expParas)
 rwdSeq_ = seqResults['rwdSeq_']
 htSeq_ = seqResults['htSeq_']
-trialOutput = sf.showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_, False)
+trialOutput = sf.showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_, True)
 thisExp = trialOutput['expHandler']
 
 # add data to the headerFile 
-totalPayments = sum(thisExp['trialEarnings']) / 20 
+totalPayments = 0
 thisHeader.addData("subId", expInfo['participant'])
 thisHeader.addData("socialCondition", expInfo['social_info_condition'])
 thisHeader.addData("date", expInfo['date'])
@@ -111,6 +105,9 @@ thisHeader.addData("frameRate", expInfo['frameRate'])
 thisHeader.addData("totalPayments", totalPayments)
 thisHeader.addData("seed", seed)
 
+# save data
+thisExp.saveAsWideText(fileName+'.csv')
+thisHeader.saveAsWideText(headerName+'.csv')
 
 # quit the experiment 
 thisHeader.saveAsWideText(headerName + '.csv')
