@@ -29,7 +29,7 @@ expParas = sf.getExpParas()
 
 # collect participant info
 expName = 'Social_Forage'
-expInfo = {'participant':'test', 'social_info_condition':'0', 'background_condition': '0'}
+expInfo = {'participant':'test', 'social_info_condition':'0'}
 dlg = gui.DlgFromDict(dictionary=expInfo, title=expName)
 if dlg.OK == False:
     core.quit() 
