@@ -29,7 +29,7 @@ expParas = sf.getExpParas()
 
 # collect participant info
 expName = 'Social_Forage'
-expInfo = {'participant':'test', 'social_info_condition':'0'}
+expInfo = {'participant':'test', 'social_info_condition':0, 'background_condition': 0}
 dlg = gui.DlgFromDict(dictionary=expInfo, title=expName)
 if dlg.OK == False:
     core.quit() 
@@ -37,10 +37,10 @@ expInfo['expName'] = expName
 expInfo['date'] = time.strftime("%d%m%Y")
 
 # setup the Window
-winColor = 
-win = visual.Window(fullscr=True, screen=0,
+winColor = "grey" if expInfo['background_condition'] == 0 else "black"
+win = visual.Window(fullscr=False, screen=0,
     allowGUI=False, allowStencil=False,
-    monitor='testMonitor', color=[0,0,0], colorSpace='rgb',
+    monitor='testMonitor', color=winColor, colorSpace='rgb',
     blendMode='avg', useFBO=True, pos = [0, 0])
 
 # create stimuli
@@ -80,7 +80,7 @@ def quitFun():
     thisHeader.addData("frameDur", expInfo['frameDur'])
     thisHeader.addData("frameRate", expInfo['frameRate'])
     thisHeader.addData("seed", seed)
-    totalPayments = totalEarnings / 0
+    totalPayments = 0
     thisHeader.addData("totalPayments", totalPayments)
     thisHeader.saveAsWideText(headerName+'.csv')
     thisHeader.abort()

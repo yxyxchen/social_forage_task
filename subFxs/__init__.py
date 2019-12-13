@@ -88,9 +88,26 @@ def getStims(expParas, win):
 	# create the traveling time bar 
 	whiteTimeBar = visual.Rect(win = win, width = expParas['travelSec'] * 0.03, height = 0.03,
 	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, -0.35))
+
+	# prompts 
+	recycleText = visual.TextStim(win = win, ori=0,\
+				text= 'RECYCLE', font=u'Arial', bold = False, units='height',\
+				pos=[0.2, -0.3], height=0.04, color= 'blue', colorSpace='rgb')
+
+	recylceButton = visual.Rect(win = win, width = 0.25, height = 0.06, 
+	units = "height", lineWidth = 4, lineColor = "blue", fillColor = "white", pos = (0.2, -0.30))
+
+	forgoText = visual.TextStim(win = win, ori=0,\
+				text= 'FORGO', font=u'Arial', bold = False, units='height',\
+				pos=[-0.2, -0.3], height=0.04, color= 'red', colorSpace='rgb')
+
+	forgoButton = visual.Rect(win = win, width = 0.25, height = 0.06,
+	units = "height", lineWidth = 4, lineColor = "red", fillColor = "white", pos = (-0.2, -0.30))
+
 	# return outputs
 	outputs = {'trashCan' : trashCan, 'recycleSymbol' : recycleSymbol, "trashes" : trashes,\
-	'whiteTimeBar' : whiteTimeBar, "fbCircle" : fbCircle}
+	'whiteTimeBar' : whiteTimeBar, "fbCircle" : fbCircle, \
+	"recycleText" : recycleText, "forgoText" : forgoText, "recycleButton" : recylceButton, "forgoButton" : forgoButton}
 	return(outputs)
 
 
@@ -120,9 +137,12 @@ def getStimsSocial(expParas, win):
 	# create the traveling time bar 
 	whiteTimeBar = visual.Rect(win = win, width = expParas['travelSec'] * 0.03, height = 0.03,
 	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, -0.35))
+
 	# return outputs
 	outputs = {'trashCan' : trashCan, 'recycleSymbol' : recycleSymbol, "trashes" : trashes,\
-	'whiteTimeBar' : whiteTimeBar, "fbCircle" : fbCircle, "fbCircleOther" : fbCircleOther}
+	'whiteTimeBar' : whiteTimeBar, "fbCircle" : fbCircle, "fbCircleOther" : fbCircleOther, \
+	"recycleText" : recycleText, "forgoText" : forgoText}
+
 	return(outputs)
 
 
@@ -138,11 +158,16 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifDemo
 	recycleSymbol = stims['recycleSymbol']
 	whiteTimeBar = stims['whiteTimeBar']
 	fbCircle = stims['fbCircle']
+	recycleText = stims["recycleText"]
+	forgoText = stims["forgoText"]
+	recycleButton = stims['recycleButton']
+	forgoButton = stims['forgoButton']
 
 	# calcualte the number of frames for key events
 	nFbFrame = math.ceil((expParas['travelSec'] - expParas['decsSec']) / expInfo['frameDur'])
 	fbBeginFIdx = math.ceil(0.5 / expInfo['frameDur'])
 	fbEndFIdx = math.ceil((0.5 + expParas['fbSelfSec']) / expInfo['frameDur'])
+	promptBeginFIdx = math.ceil((expParas['travelSec'] - expParas['decsSec'] - 1) / expInfo['frameDur'])
 	nDecsFrame = math.ceil(expParas['decsSec'] / expInfo['frameDur'])
 	
 	# start the task 
@@ -157,7 +182,7 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifDemo
 
 		# change the backgroud color 
 		if blockIdx > 0:
-			win.color = 'black'
+			win.color = "black" if expInfo['background_condition'] == 0 else "grey"
 
 		# create the message
 		if blockIdx == 0:
@@ -227,6 +252,10 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifDemo
 					responseBlockTime = blockTime + responseRT + expParas['travelSec'] - expParas['decsSec']
 				# draw stimuli
 				trashCan.draw()
+				recycleButton.draw()
+				recycleText.draw()
+				forgoButton.draw()
+				forgoText.draw()
 				trashes[str(scheduledHt)].draw()
 				recycleSymbol.color = "black"
 				recycleSymbol.draw()
@@ -254,6 +283,10 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifDemo
 				for frameIdx in range(responseFrameIdx+1, nDecsFrame):
 					if response == 1:
 						trashCan.draw()
+						recycleButton.draw()
+						recycleText.draw()
+						forgoButton.draw()
+						forgoText.draw()
 						trashes[str(scheduledHt)].draw()
 						recycleSymbol.color = "blue"
 						recycleSymbol.draw()
@@ -267,6 +300,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifDemo
 
 					else:
 						trashCan.draw()
+						recycleButton.draw()
+						forgoButton.draw()
 						trashes[str(scheduledHt)].draw()
 						recycleSymbol.color = "red"
 						recycleSymbol.draw()
@@ -318,7 +353,6 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifDemo
 			expHandler.addData('trialEarnings', trialEarnings)
 			expHandler.addData('responseRT', responseRT)
 			expHandler.addData('blockTime', blockTime)
-			expHandler.nextEntry()
 
 			# give the feedback 
 			trialEarnText = visual.TextStim(win=win, ori=0,
@@ -335,6 +369,11 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifDemo
 				if (frameIdx >= fbBeginFIdx) & (frameIdx < fbEndFIdx):
 					fbCircle.draw()
 					trialEarnText.draw()
+				if (frameIdx >= promptBeginFIdx):
+					recycleButton.draw()
+					recycleText.draw()
+					forgoButton.draw()
+					forgoText.draw()
 				win.flip()
 			# move to the next trial 
 			trialIdx = trialIdx + 1
