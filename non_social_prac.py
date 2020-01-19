@@ -57,8 +57,8 @@ else:
 expInfo['frameDur'] = expInfo['frameDur']
 
 # create the experiment handlers to save data
-fileName = dataPath + os.sep + u'demo_%s' %(expInfo['participant'])
-headerName = dataPath + os.sep + u'demo_%s_header' %(expInfo['participant'])
+fileName = dataPath + os.sep + u'prac_%s' %(expInfo['participant'])
+headerName = dataPath + os.sep + u'prac_%s_header' %(expInfo['participant'])
 thisHeader = data.ExperimentHandler(name = expName, version = "",\
 runtimeInfo = None, originPath = None, savePickle = False,\
 saveWideText = True, dataFileName = headerName)
@@ -93,7 +93,7 @@ event.globalKeys.add(key = "q", func = quitFun)
 seqResults = sf.getSeqs(expParas)
 rwdSeq_ = seqResults['rwdSeq_']
 htSeq_ = seqResults['htSeq_']
-trialOutput = sf.showDemo(win, expParas, expInfo, thisExp, stims)
+trialOutput = sf.showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_, True)
 thisExp = trialOutput['expHandler']
 
 # add data to the headerFile 
