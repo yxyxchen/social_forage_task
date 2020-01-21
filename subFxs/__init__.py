@@ -21,7 +21,7 @@ def getExpParas():
 	expParas['rwdHigh'] = 3
 	expParas['rwdLow'] = 1
 	expParas['missLoss'] = -2
-	expParas['blockSec'] = 30
+	expParas['blockSec'] = 15 * 60
 	expParas['pracBlockSec'] = 30
 	hts_ = {
 	'rich' : np.array([40, 28, 22, 2, 2, 2, 2]),
@@ -68,26 +68,27 @@ def getSeqs(expParas):
 
 ##### create stimuli #####
 def getStims(expParas, win):
-# create token stimuli
-	trashCan = visual.Rect(win = win, width = 0.3, height = (max(expParas['unqHts']) + 2)  * 0.01,
-	units = "height", lineWidth = 4, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, 0.0))
+	verCenter = 0.1
+# create token 	
+	trashCan = visual.Rect(win = win, width = 0.3, height = (max(expParas['unqHts']) + 2)  * 0.008,
+	units = "height", lineWidth = 4, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, verCenter))
 
-	recycleSymbol = visual.ImageStim(win, image="recycle.png", units='height', pos=(0.0, 0.0),
+	recycleSymbol = visual.ImageStim(win, image="recycle.png", units='height', pos= (0, verCenter),
 		size=0.1, ori=0.0, color = "black")
 	
 	trashes = {}
 	for i in range(max(expParas['unqHts']) + 1):
 		keyName = f'trash{i:d}'
-		trashes[str(i)] = visual.Rect(win=win, width = 0.295, height = i  * 0.01,
+		trashes[str(i)] = visual.Rect(win=win, width = 0.295, height = i  * 0.008,
 			units = "height", lineWidth = 4, lineColor = [1, 1, 1], fillColor = [0.5, 0.5, 0.5],\
-			pos = (0, -(max(expParas['unqHts']) + 2 -i) / 2 * 0.01))
+			pos = (0, -(max(expParas['unqHts']) + 2 -i) / 2 * 0.008 + verCenter))
 
 	fbCircle = visual.Circle(win = win, radius=0.1, units = "height", fillColor = "white",\
-		lineWidth = 4, lineColor = [0.54509804, -0.78823529, -0.01960784], pos = (0.0, 0.0))
+		lineWidth = 4, lineColor = [0.54509804, -0.78823529, -0.01960784], pos = (0.0, verCenter))
 
 	# create the traveling time bar 
 	whiteTimeBar = visual.Rect(win = win, width = expParas['travelSec'] * 0.03, height = 0.03,
-	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, -0.35))
+	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, -0.35 + verCenter))
 
 	# return outputs
 	outputs = {'trashCan' : trashCan, 'recycleSymbol' : recycleSymbol, "trashes" : trashes,\
@@ -360,6 +361,8 @@ def showDemo(win, expParas, expInfo, expHandler, stims):
 
 
 def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac):
+	verCenter = 0.1
+
 	if ifPrac:
 		blockSec = expParas['pracBlockSec']
 	else:
@@ -428,18 +431,41 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			message.draw()
 			win.flip()
 
+		# record the time left in the block
+		realLeftTime = blockSec 
+		realLeftMin = math.floor(realLeftTime / 60)
+		realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
+		timeLeftText = visual.TextStim(win=win, ori=0,\
+		text= "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2),\
+		font=u'Arial', units='height',\
+		pos=[0, -0.40], height= 0.05, color= "white", colorSpace='rgb')
+
+		# record the accumlated rewards 
+		totaLEarnText = visual.TextStim(win=win, ori=0,\
+		text= "Earned: " + str(totalEarnings),\
+		font=u'Arial', units='height',\
+		pos=[0, -0.32], height= 0.05, color= "white", colorSpace='rgb')
+
+		# create the blue bar
+		blueTimeBar = visual.Rect(win = win, height = 0.03,\
+		units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137])
 
 		# plot the first searching time 
 		for frameIdx in range(nFbFrame):
 			whiteTimeBar.draw()
 			elapsedSec = (frameIdx + 1) * expInfo['frameDur']
 			leftSec = expParas['travelSec'] - elapsedSec
-			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-			units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-			pos = (- elapsedSec * 0.03 / 2, -0.35))
+			blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
+			blueTimeBar.width = leftSec * 0.03
 			blueTimeBar.draw()
+			realLeftMin = math.floor(realLeftTime / 60)
+			realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
+			timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
+			timeLeftText.draw()
+			totaLEarnText.draw()
+			# update the leftTime
+			realLeftTime = realLeftTime - expInfo['frameDur']
 			win.flip()
-
 
 
 		while blockTime < blockSec:
@@ -470,13 +496,18 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 				whiteTimeBar.draw()
 				leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
 				elapsedSec = expParas['travelSec'] - leftSec
-				blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-					units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-					pos = (- elapsedSec * 0.03 / 2, -0.35))
+				blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
+				blueTimeBar.width = leftSec * 0.03
 				blueTimeBar.draw()
-				# update the window
+				realLeftMin = math.floor(realLeftTime / 60)
+				realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
+				timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
+				timeLeftText.draw()
+				totaLEarnText.draw()
+				# update the leftTime
+				realLeftTime = realLeftTime - expInfo['frameDur']
 				win.flip()
-				# update the frame idx
+				# update the frame idx and the leftTime
 				frameIdx += 1
 
 			# record the response 
@@ -496,11 +527,10 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 						whiteTimeBar.draw()
 						leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
 						elapsedSec = expParas['travelSec'] - leftSec
-						blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-							units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-							pos = (- elapsedSec * 0.03 / 2, -0.35))
+						blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
+						blueTimeBar.width = leftSec * 0.03
 						blueTimeBar.draw()
-
+						totaLEarnText.draw()
 					else:
 						trashCan.draw()
 						trashes[str(scheduledHt)].draw()
@@ -509,10 +539,17 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 						whiteTimeBar.draw()
 						leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
 						elapsedSec = expParas['travelSec'] - leftSec
-						blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-							units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-							pos = (- elapsedSec * 0.03 / 2, -0.35))
+						blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
+						blueTimeBar.width = leftSec * 0.03
 						blueTimeBar.draw()
+						totaLEarnText.draw()
+					# draw the left time
+					realLeftMin = math.floor(realLeftTime / 60)
+					realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
+					timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
+					timeLeftText.draw()
+					# update the leftTime
+					realLeftTime = realLeftTime - expInfo['frameDur']
 					win.flip()
 
 			# count down if the option is accepted
@@ -524,7 +561,15 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 					trashes[str(math.floor(countDownTime))].draw()
 					recycleSymbol.color = "blue"
 					recycleSymbol.draw()
+					# draw the left time
+					realLeftMin = math.floor(realLeftTime / 60)
+					realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
+					timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
+					timeLeftText.draw()
+					totaLEarnText.draw()
+					realLeftTime = realLeftTime - expInfo['frameDur']
 					win.flip()
+
 
 			# trialEarnings and spentHt
 			if response == 1:
@@ -543,6 +588,7 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			preTaskTime = taskTime 
 			taskTime = taskTime + spentHt + expParas['travelSec']
 			blockTime = blockTime + spentHt + expParas['travelSec']	# block time before searching for the next trashcan
+			totaLEarnText.text = "Earned: " + str(totalEarnings) 
 
 			# save the data before searching for the next trashcan
 			expHandler.addData('blockIdx',blockIdx + 1) # since blockIdx starts from 0 
@@ -558,18 +604,24 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			# give the feedback 
 			trialEarnText = visual.TextStim(win=win, ori=0,
 			text= '' + str(trialEarnings), font=u'Arial', bold = True, units='height',\
-			pos=[0, 0], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 	
+			pos=[0, verCenter], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 	
 			for frameIdx in range(nFbFrame):			
 				whiteTimeBar.draw()
 				elapsedSec = (frameIdx + 1) * expInfo['frameDur']
 				leftSec = expParas['travelSec'] - elapsedSec
-				blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-				units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-				pos = (- elapsedSec * 0.03 / 2, -0.35))
+				blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
+				blueTimeBar.width = leftSec * 0.03
 				blueTimeBar.draw()
 				if (frameIdx >= fbBeginFIdx) & (frameIdx < fbEndFIdx):
 					fbCircle.draw()
 					trialEarnText.draw() 
+				# draw the left time
+				realLeftMin = math.floor(realLeftTime / 60)
+				realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
+				timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
+				timeLeftText.draw()
+				totaLEarnText.draw()
+				realLeftTime = realLeftTime - expInfo['frameDur']
 				win.flip()
 			# move to the next trial 
 			trialIdx = trialIdx + 1
@@ -644,9 +696,8 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 			whiteTimeBar.draw()
 			leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
 			elapsedSec = expParas['travelSec'] - leftSec
-			blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-				units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-				pos = (- elapsedSec * 0.03 / 2, -0.35))
+			blueTimeBar.pos = (- elapsedSec * 0.03 / 2,-0.35 + verCenter)
+			blueTimeBar.width = leftSec * 0.03
 			blueTimeBar.draw()
 			# update the window
 			win.flip()
@@ -669,9 +720,8 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 					whiteTimeBar.draw()
 					leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
 					elapsedSec = expParas['travelSec'] - leftSec
-					blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-						units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-						pos = (- elapsedSec * 0.03 / 2 , -0.35))
+					blueTimeBar.pos = (- elapsedSec * 0.03 / 2,-0.35 + verCenter)
+					blueTimeBar.width = leftSec * 0.03
 					blueTimeBar.draw()
 
 				else:
@@ -682,9 +732,8 @@ def showTrialSocial(win, expParas, expInfo, thisExp, stims, htSeq, rwdSeq, taskT
 					whiteTimeBar.draw()
 					leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
 					elapsedSec = expParas['travelSec'] - leftSec
-					blueTimeBar = visual.Rect(win = win, width = leftSec * 0.03, height = 0.03,\
-						units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [-0.16078431,  0.36470588,  0.67843137],\
-						pos = (- elapsedSec * 0.03 / 2, -0.35))
+					blueTimeBar.pos = (- elapsedSec * 0.03 / 2,-0.35 + verCenter)
+					blueTimeBar.width = leftSec * 0.03
 					blueTimeBar.draw()
 				win.flip()
 
