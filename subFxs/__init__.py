@@ -392,6 +392,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 		# change the backgroud color 
 		if blockIdx > 0:
 			win.color = "black" if expInfo['background_condition'] == 0 else "grey"
+		else:
+			win.color = "grey" if expInfo['background_condition'] == 0 else "black"
 
 		# create the message
 		if blockIdx == 0:

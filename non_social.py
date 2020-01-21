@@ -29,7 +29,7 @@ expParas = sf.getExpParas()
 
 # collect participant info
 expName = 'Social_Forage'
-expInfo = {'participant':'test', 'social_info_condition':'0'}
+expInfo = {'participant':'test', 'social_info_condition':'0', 'background_condition':'0'}
 dlg = gui.DlgFromDict(dictionary=expInfo, title=expName)
 if dlg.OK == False:
     core.quit() 
@@ -39,7 +39,7 @@ expInfo['date'] = time.strftime("%d%m%Y")
 # setup the Window
 win = visual.Window(fullscr=False, screen=0,
     allowGUI=False, allowStencil=False,
-    monitor='testMonitor', color=[0,0,0], colorSpace='rgb',
+    monitor='testMonitor', colorSpace='rgb',
     blendMode='avg', useFBO=True, pos = [0, 0])
 
 # create stimuli
@@ -75,6 +75,7 @@ def quitFun():
     # add entries to the header file 
     thisHeader.addData("subId", expInfo['participant'])
     thisHeader.addData("socialCondition", expInfo['social_info_condition'])
+    thisHeader.addData("colorCondition", expInfo['background_condition'])
     thisHeader.addData("date", expInfo['date'])
     thisHeader.addData("frameDur", expInfo['frameDur'])
     thisHeader.addData("frameRate", expInfo['frameRate'])
@@ -84,7 +85,6 @@ def quitFun():
         totalEarnings = sum(expData['trialEarnings'])
     except pandas.errors.EmptyDataError:
         totalEarnings = 0
-    
     totalPayments = totalEarnings / 20 
     thisHeader.addData("totalPayments", totalPayments)
     thisHeader.saveAsWideText(headerName+'.csv')
@@ -105,12 +105,12 @@ thisExp = trialOutput['expHandler']
 totalPayments = sum(thisExp['trialEarnings']) / 20 
 thisHeader.addData("subId", expInfo['participant'])
 thisHeader.addData("socialCondition", expInfo['social_info_condition'])
+thisHeader.addData("colorCondition", expInfo['background_condition'])
 thisHeader.addData("date", expInfo['date'])
 thisHeader.addData("frameDur", expInfo['frameDur'])
 thisHeader.addData("frameRate", expInfo['frameRate'])
 thisHeader.addData("totalPayments", totalPayments)
 thisHeader.addData("seed", seed)
-
 
 # quit the experiment 
 thisHeader.saveAsWideText(headerName + '.csv')
