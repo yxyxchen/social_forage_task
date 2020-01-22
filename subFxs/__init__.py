@@ -361,12 +361,9 @@ def showDemo(win, expParas, expInfo, expHandler, stims):
 
 
 def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac):
+	# constants 
 	verCenter = 0.1
-
-	if ifPrac:
-		blockSec = expParas['pracBlockSec']
-	else:
-		blockSec = expParas['blockSec']
+	blockSec = expParas['blockSec']
 
 	# parse stims
 	trashCan = stims['trashCan']
@@ -384,7 +381,12 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 	
 	# start the task 
 	totalEarnings = 0
-	for blockIdx in range(len(expParas['conditions'])):
+	if ifPrac:
+		nBlock = 1
+	else:
+		nBlock = 2
+
+	for blockIdx in range(nBlock):
 		condition = expParas['conditions'][blockIdx]
 		rwdSeq = rwdSeq_[condition]
 		htSeq = htSeq_[condition]
@@ -393,10 +395,13 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 		trialIdx = 0
 
 		# change the backgroud color 
-		if blockIdx > 0:
-			win.color = "black" if expInfo['background_condition'] == 0 else "grey"
+		if not ifPrac:
+			if blockIdx > 0:
+				win.color = "black" if expInfo['background_condition'] == 0 else "grey"
+			else:
+				win.color = "grey" if expInfo['background_condition'] == 0 else "black"
 		else:
-			win.color = "grey" if expInfo['background_condition'] == 0 else "black"
+			win.color = [0.9764706, 0.5450980, 0.5058824]
 
 		# create the message
 		if blockIdx == 0:
@@ -461,14 +466,17 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			realLeftMin = math.floor(realLeftTime / 60)
 			realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
 			timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
-			timeLeftText.draw()
+			if not ifPrac:
+				timeLeftText.draw()
 			totaLEarnText.draw()
 			# update the leftTime
 			realLeftTime = realLeftTime - expInfo['frameDur']
 			win.flip()
 
 
-		while blockTime < blockSec:
+		while (not ifPrac and blockTime < blockSec) or (ifPrac and trialIdx < len(expParas['unqHts'])) :
+			# if isPrac, terminate the program after experiencing all four possible options
+			# reward and handling time for this trial
 			scheduledHt = htSeq[trialIdx]
 			scheduledRwd = rwdSeq[trialIdx]
             
@@ -502,7 +510,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 				realLeftMin = math.floor(realLeftTime / 60)
 				realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
 				timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
-				timeLeftText.draw()
+				if not ifPrac:
+					timeLeftText.draw()
 				totaLEarnText.draw()
 				# update the leftTime
 				realLeftTime = realLeftTime - expInfo['frameDur']
@@ -519,35 +528,27 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			# update the decision 
 			if responded == True:
 				for frameIdx in range(responseFrameIdx+1, nDecsFrame):
+					trashCan.draw()
+					trashes[str(scheduledHt)].draw()
+					whiteTimeBar.draw()
+					leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
+					elapsedSec = expParas['travelSec'] - leftSec
+					blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
+					blueTimeBar.width = leftSec * 0.03
+					blueTimeBar.draw()
+					totaLEarnText.draw()
 					if response == 1:
-						trashCan.draw()
-						trashes[str(scheduledHt)].draw()
 						recycleSymbol.color = "blue"
 						recycleSymbol.draw()
-						whiteTimeBar.draw()
-						leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
-						elapsedSec = expParas['travelSec'] - leftSec
-						blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
-						blueTimeBar.width = leftSec * 0.03
-						blueTimeBar.draw()
-						totaLEarnText.draw()
 					else:
-						trashCan.draw()
-						trashes[str(scheduledHt)].draw()
 						recycleSymbol.color = "red"
 						recycleSymbol.draw()
-						whiteTimeBar.draw()
-						leftSec = expParas['decsSec']- (frameIdx + 1) * expInfo['frameDur']
-						elapsedSec = expParas['travelSec'] - leftSec
-						blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
-						blueTimeBar.width = leftSec * 0.03
-						blueTimeBar.draw()
-						totaLEarnText.draw()
 					# draw the left time
 					realLeftMin = math.floor(realLeftTime / 60)
 					realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
 					timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
-					timeLeftText.draw()
+					if not ifPrac:
+						timeLeftText.draw()
 					# update the leftTime
 					realLeftTime = realLeftTime - expInfo['frameDur']
 					win.flip()
@@ -565,7 +566,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 					realLeftMin = math.floor(realLeftTime / 60)
 					realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
 					timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
-					timeLeftText.draw()
+					if not ifPrac:
+						timeLeftText.draw()
 					totaLEarnText.draw()
 					realLeftTime = realLeftTime - expInfo['frameDur']
 					win.flip()
@@ -619,7 +621,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 				realLeftMin = math.floor(realLeftTime / 60)
 				realLeftSec = math.floor(realLeftTime - 60 * realLeftMin)
 				timeLeftText.text = "Time Left:" + str(realLeftMin).zfill(2) + ":" + str(realLeftSec).zfill(2)
-				timeLeftText.draw()
+				if not ifPrac:
+					timeLeftText.draw()
 				totaLEarnText.draw()
 				realLeftTime = realLeftTime - expInfo['frameDur']
 				win.flip()
@@ -645,7 +648,6 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			responded = True
 		message.draw()
 		win.flip()
-
 
 	# save the total earnings 
 	trialOutput = {'expHandler':expHandler, 'totalEarnings': totalEarnings} 

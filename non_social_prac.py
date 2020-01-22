@@ -37,10 +37,9 @@ expInfo['expName'] = expName
 expInfo['date'] = time.strftime("%d%m%Y")
 
 # setup the Window
-winColor = "grey" if expInfo['background_condition'] == 0 else "black"
 win = visual.Window(fullscr=False, screen=0,
     allowGUI=False, allowStencil=False,
-    monitor='testMonitor', color=winColor, colorSpace='rgb',
+    monitor='testMonitor', color = [0.9764706, 0.5450980, 0.5058824], colorSpace='rgb',
     blendMode='avg', useFBO=True, pos = [0, 0])
 
 # create stimuli
@@ -76,6 +75,7 @@ def quitFun():
     # add entries to the header file 
     thisHeader.addData("subId", expInfo['participant'])
     thisHeader.addData("socialCondition", expInfo['social_info_condition'])
+    thisHeader.addData("colorCondition", expInfo['background_condition'])
     thisHeader.addData("date", expInfo['date'])
     thisHeader.addData("frameDur", expInfo['frameDur'])
     thisHeader.addData("frameRate", expInfo['frameRate'])
@@ -90,9 +90,15 @@ def quitFun():
 event.globalKeys.add(key = "q", func = quitFun)
 
 # run the experiment 
-seqResults = sf.getSeqs(expParas)
-rwdSeq_ = seqResults['rwdSeq_']
-htSeq_ = seqResults['htSeq_']
+expParas = sf.getExpParas()
+rwdSeq_ = {}
+htSeq_ = {}
+rwdSeq_['poor'] = [expParas['rwdHigh'], expParas['rwdLow'], expParas['rwdHigh'], expParas['rwdLow']]
+random.shuffle(rwdSeq_['poor'])
+rwdSeq_['rich'] = rwdSeq_['poor']
+htSeq_['poor'] = expParas['unqHts']
+random.shuffle(htSeq_['poor'])
+htSeq_['rich'] = htSeq_['poor']
 trialOutput = sf.showTrial(win, expParas, expInfo, thisExp, stims, rwdSeq_, htSeq_, True)
 thisExp = trialOutput['expHandler']
 
@@ -100,6 +106,7 @@ thisExp = trialOutput['expHandler']
 totalPayments = 0
 thisHeader.addData("subId", expInfo['participant'])
 thisHeader.addData("socialCondition", expInfo['social_info_condition'])
+thisHeader.addData("colorCondition", expInfo['background_condition'])
 thisHeader.addData("date", expInfo['date'])
 thisHeader.addData("frameDur", expInfo['frameDur'])
 thisHeader.addData("frameRate", expInfo['frameRate'])
