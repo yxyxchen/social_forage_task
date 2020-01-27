@@ -37,13 +37,13 @@ expInfo['expName'] = expName
 expInfo['date'] = time.strftime("%d%m%Y")
 
 # setup the Window
-win = visual.Window(fullscr=True, screen=0,
+win = visual.Window(fullscr=False, screen=0,
     allowGUI=False, allowStencil=False,
     monitor='testMonitor', color = [0.9764706, 0.5450980, 0.5058824], colorSpace='rgb',
     blendMode='avg', useFBO=True, pos = [0, 0])
 
 # create stimuli
-stims = sf.getStims(expParas, win)
+stims = sf.getStims(win, expParas)
 
 # save the frame rate of the monitor if we can measure it
 expInfo['frameRate']=win.getActualFrameRate()
