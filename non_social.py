@@ -41,7 +41,14 @@ win = visual.Window(fullscr=False, screen=0,
     allowGUI=False, allowStencil=False,
     monitor='testMonitor', colorSpace='rgb',
     blendMode='avg', useFBO=True, pos = [0, 0])
-win.color = "grey" if expInfo['background_condition'] == 0 else "black"
+
+if expInfo['background_condition'] == '0':
+    win.color = "grey"
+elif expInfo['background_condition'] == '1':
+    win.color = "black"
+else
+    win.close()
+    core.quit()
 
 # create stimuli
 stims = sf.getStims(expParas, win)
