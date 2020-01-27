@@ -37,7 +37,7 @@ expInfo['expName'] = expName
 expInfo['date'] = time.strftime("%d%m%Y")
 
 # setup the Window
-win = visual.Window(fullscr=False, screen=0,
+win = visual.Window(fullscr=True, screen=0,
     allowGUI=False, allowStencil=False,
     monitor='testMonitor', colorSpace='rgb',
     blendMode='avg', useFBO=True, pos = [0, 0])
@@ -46,7 +46,7 @@ if expInfo['background_condition'] == '0':
     win.color = "grey"
 elif expInfo['background_condition'] == '1':
     win.color = "black"
-else
+else:
     win.close()
     core.quit()
 

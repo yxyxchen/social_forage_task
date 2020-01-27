@@ -21,7 +21,7 @@ def getExpParas():
 	expParas['rwdHigh'] = 3
 	expParas['rwdLow'] = 1
 	expParas['missLoss'] = -2
-	expParas['blockSec'] = 15 * 60
+	expParas['blockSec'] = 5 * 60
 	expParas['pracBlockSec'] = 30
 	hts_ = {
 	'rich' : np.array([40, 28, 22, 2, 2, 2, 2]),
@@ -474,7 +474,7 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			win.flip()
 
 
-		while (not ifPrac and blockTime < blockSec) or (ifPrac and trialIdx < len(expParas['unqHts'])) :
+		while (not ifPrac and realLeftTime > 0) or (ifPrac and trialIdx < len(expParas['unqHts'])) :
 			# if isPrac, terminate the program after experiencing all four possible options
 			# reward and handling time for this trial
 			scheduledHt = htSeq[trialIdx]
