@@ -198,9 +198,9 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 		if not ifPrac:
 			if blockIdx > 0:
 				background = visual.ImageStim(win, image="campus2.png", opacity = 0.15,
-					interpolate = True, size = [800, 600], units = 'pix')
+					interpolate = True, size = [1280, 800], units = 'pix')
 			else:
-				background = visual.ImageStim(win, image="campus1.png", opacity = 0.15, interpolate = True, size = [800, 600], units = 'pix')
+				background = visual.ImageStim(win, image="campus1.png", opacity = 0.15, interpolate = True, size = [1280, 800], units = 'pix')
 		else:
 			win.color = [0.9764706, 0.5450980, 0.5058824]
 
