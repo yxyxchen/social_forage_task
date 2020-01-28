@@ -162,7 +162,6 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			timeBarTick.draw()
 			timeBarSticker.draw()
 			timeLeftText.text = getTimeLeftLabel(realLeftTime)
-			timeLeftText.draw()
 			if not ifPrac:
 				timeLeftText.draw()
 
@@ -363,7 +362,7 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			trialEarnText = visual.TextStim(win=win, ori=0,
 			text= '' + str(trialEarnings), font=u'Arial', bold = True, units='height',\
 			pos=[0, verCenter], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 	
-			for frameIdx in range(nFbFrame):			
+			for frameIdx in range(nFbFrame):		
 				drawTime(frameIdx, realLeftTime, ifPrac)
 				totalEarnText.draw()
 				realLeftTime = realLeftTime - expInfo['frameDur']
