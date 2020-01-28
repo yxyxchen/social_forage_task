@@ -29,7 +29,7 @@ expParas = sf.getExpParas()
 
 # collect participant info
 expName = 'Social_Forage'
-expInfo = {'participant':'test', 'social_info_condition':0, 'background_condition': 0}
+expInfo = {'participant':'test', 'social_info_condition':0}
 dlg = gui.DlgFromDict(dictionary=expInfo, title=expName)
 if dlg.OK == False:
     core.quit() 
@@ -75,7 +75,6 @@ def quitFun():
     # add entries to the header file 
     thisHeader.addData("subId", expInfo['participant'])
     thisHeader.addData("socialCondition", expInfo['social_info_condition'])
-    thisHeader.addData("colorCondition", expInfo['background_condition'])
     thisHeader.addData("date", expInfo['date'])
     thisHeader.addData("frameDur", expInfo['frameDur'])
     thisHeader.addData("frameRate", expInfo['frameRate'])
@@ -106,7 +105,6 @@ thisExp = trialOutput['expHandler']
 totalPayments = 0
 thisHeader.addData("subId", expInfo['participant'])
 thisHeader.addData("socialCondition", expInfo['social_info_condition'])
-thisHeader.addData("colorCondition", expInfo['background_condition'])
 thisHeader.addData("date", expInfo['date'])
 thisHeader.addData("frameDur", expInfo['frameDur'])
 thisHeader.addData("frameRate", expInfo['frameRate'])

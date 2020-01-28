@@ -257,7 +257,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 
 		# plot the first searching time 
 		for frameIdx in range(nFbFrame):
-			background.draw()
+			if not ifPrac:
+				background.draw()
 			# draw the timebar
 			drawTime(frameIdx, realLeftTime, ifPrac)
 			totalEarnText.draw()
@@ -279,7 +280,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			event.clearEvents() 
 
 			while (frameIdx < nDecsFrame + nFbFrame) and realLeftTime > 0:
-				background.draw()
+				if not ifPrac:
+					background.draw()
 				# draw stimuli
 				trashCan.draw()
 				trashes[str(scheduledHt)].draw()
@@ -319,7 +321,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			if response == 1:
 				nCountDownFrame = math.ceil(scheduledHt / expInfo['frameDur'])
 				while (frameIdx < nDecsFrame + nFbFrame + nCountDownFrame) and realLeftTime > 0:
-					background.draw()
+					if not ifPrac:
+						background.draw()
 					trashCan.draw()
 					countDownTime = (nDecsFrame + nFbFrame + nCountDownFrame - frameIdx) * expInfo['frameDur'] # time for the next win flip
 					trashes[str(math.floor(countDownTime))].draw()
@@ -364,6 +367,7 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			expHandler.addData('trialEarnings', trialEarnings)
 			expHandler.addData('responseRT', responseRT)
 			expHandler.addData('blockTime', blockTime)
+			expHandler.nextEntry()
 
 			# give the feedback 
 			trialEarnText = visual.TextStim(win=win, ori=0,
@@ -372,7 +376,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			nFbFrameSelf = round(expParas['fbSelfSec'] / expInfo['frameDur'])
 			frameIdx = 0
 			while frameIdx < nFbFrame and realLeftTime > 0:	
-				background.draw()
+				if not ifPrac:
+					background.draw()
 				if frameIdx < nFbFrameSelf:
 					if trialEarnings == expParas['rwdHigh']:
 						bottlePicture.draw()
