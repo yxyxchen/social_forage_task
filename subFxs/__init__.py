@@ -21,7 +21,7 @@ def getExpParas():
 	expParas['rwdHigh'] = 3
 	expParas['rwdLow'] = 1
 	expParas['missLoss'] = -2
-	expParas['blockSec'] = 5 * 60
+	expParas['blockSec'] = 1 * 60
 	expParas['pracBlockSec'] = 30
 	hts_ = {
 	'rich' : np.array([40, 28, 22, 2, 2, 2, 2]),
@@ -75,10 +75,10 @@ def getStims(win, expParas):
 
 	recycleSymbol = visual.ImageStim(win, image="recycle.png", units='height', pos= (0, verCenter),
 		size=0.1, ori=0.0, color = "black")
-	canPicture = visual.ImageStim(win, image="can.png", units='height', pos= (0, verCenter),
-		size=0.1, ori=0.0)
-	bottlePicture = visual.ImageStim(win, image="bottle.png", units='height', pos= (0, verCenter),
-		size=0.1, ori=0.0)
+	canPicture = visual.ImageStim(win, image="can.png", units='height', pos= (0, verCenter - 0.1),
+		size=0.2, ori=0.0)
+	bottlePicture = visual.ImageStim(win, image="bottle.png", units='height', pos= (0, verCenter - 0.1),
+		size=0.18, ori=0.0)
 
 	trashes = {}
 	for i in range(max(expParas['unqHts']) + 1):
@@ -87,20 +87,18 @@ def getStims(win, expParas):
 			units = "height", lineWidth = 4, lineColor = [1, 1, 1], fillColor = [0.5, 0.5, 0.5],\
 			pos = (0, -(max(expParas['unqHts']) + 2 -i) / 2 * 0.008 + verCenter))
 
-	fbCircle = visual.Circle(win = win, radius=0.1, units = "height", fillColor = "white",\
-		lineWidth = 4, lineColor = [0.54509804, -0.78823529, -0.01960784], pos = (0.0, verCenter))
-
 	# create the traveling time bar 
 	whiteTimeBar = visual.Rect(win = win, width = expParas['travelSec'] * 0.03, height = 0.03,
-	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, -0.35 + verCenter))
-	timeBarTick = visual.Rect(win = win, pos = (-(expParas['travelSec']/ 2 - expParas['decsSec']) * 0.03, -0.35 + verCenter),
+	units = "height", lineWidth = 2, lineColor = [1, 1, 1], fillColor = [1, 1, 1], pos = (0, -0.30 + verCenter))
+	timeBarTick = visual.Rect(win = win, pos = (-(expParas['travelSec']/ 2 - expParas['decsSec']) * 0.03, -0.30 + verCenter),
 		fillColor = [-1, -1, -1], lineColor = [-1, -1, -1], lineWidth = 2, units = "height", height = 0.05, width = 0.002) # a tick line to indicate when a trashcan will pop up
-	timeBarSticker = visual.ImageStim(win, image="recycle.png", units='height', pos= (-(expParas['travelSec']/ 2 - expParas['decsSec']) * 0.03, -0.330 + verCenter + 0.025),
+	timeBarSticker = visual.ImageStim(win, image="recycle.png", units='height', pos= (-(expParas['travelSec']/ 2 - expParas['decsSec']) * 0.03, -0.28 + verCenter + 0.025),
 		size=0.03, ori=0.0, color = "black")
 
 	# return outputs
 	outputs = {'trashCan' : trashCan, 'recycleSymbol' : recycleSymbol, "trashes" : trashes,\
-	'whiteTimeBar' : whiteTimeBar, "fbCircle" : fbCircle, 'timeBarTick' : timeBarTick, 'timeBarSticker' : timeBarSticker}
+	'whiteTimeBar' : whiteTimeBar, 'timeBarTick' : timeBarTick, 'timeBarSticker' : timeBarSticker,
+	'canPicture' : canPicture, 'bottlePicture' : bottlePicture}
 	return(outputs)
 
 
@@ -156,7 +154,7 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			whiteTimeBar.draw()
 			elapsedSec = frameIdx * expInfo['frameDur']
 			leftSec = expParas['travelSec'] - elapsedSec
-			blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.35 + verCenter)
+			blueTimeBar.pos = (- elapsedSec * 0.03 / 2, -0.30 + verCenter)
 			blueTimeBar.width = leftSec * 0.03
 			blueTimeBar.draw()
 			timeBarTick.draw()
@@ -172,7 +170,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 	whiteTimeBar = stims['whiteTimeBar']
 	timeBarTick = stims['timeBarTick'] 
 	timeBarSticker = stims['timeBarSticker']
-	fbCircle = stims['fbCircle']
+	canPicture = stims['canPicture']
+	bottlePicture = stims['bottlePicture']
 
 	# calcualte the number of frames for key events
 	nFbFrame = math.ceil((expParas['travelSec'] - expParas['decsSec']) / expInfo['frameDur'])
@@ -198,9 +197,10 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 		# change the backgroud color 
 		if not ifPrac:
 			if blockIdx > 0:
-				win.color = "black" if expInfo['background_condition'] == '0' else "grey"
+				background = visual.ImageStim(win, image="campus2.png", opacity = 0.15,
+					interpolate = True, size = [800, 600], units = 'pix')
 			else:
-				win.color = "grey" if expInfo['background_condition'] == '0' else "black"
+				background = visual.ImageStim(win, image="campus1.png", opacity = 0.15, interpolate = True, size = [800, 600], units = 'pix')
 		else:
 			win.color = [0.9764706, 0.5450980, 0.5058824]
 
@@ -243,13 +243,13 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 		timeLeftText = visual.TextStim(win=win, ori=0,\
 		text= timeLeftLabel,\
 		font=u'Arial', units='height',\
-		pos=[0, -0.40], height= 0.05, color= "white", colorSpace='rgb')
+		pos=[0, -0.35], height= 0.05, color= "white", colorSpace='rgb')
 
 		# record the accumlated rewards 
 		totalEarnText = visual.TextStim(win=win, ori=0,\
 		text= "Earned: " + str(totalEarnings),\
 		font=u'Arial', units='height',\
-		pos=[0, -0.32], height= 0.05, color= "white", colorSpace='rgb')
+		pos=[0, -0.28], height= 0.05, color= "white", colorSpace='rgb')
 
 		# create the blue bar
 		blueTimeBar = visual.Rect(win = win, height = 0.03,\
@@ -257,6 +257,7 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 
 		# plot the first searching time 
 		for frameIdx in range(nFbFrame):
+			background.draw()
 			# draw the timebar
 			drawTime(frameIdx, realLeftTime, ifPrac)
 			totalEarnText.draw()
@@ -277,7 +278,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			# clear all events
 			event.clearEvents() 
 
-			while (frameIdx < nDecsFrame + nFbFrame):
+			while (frameIdx < nDecsFrame + nFbFrame) and realLeftTime > 0:
+				background.draw()
 				# draw stimuli
 				trashCan.draw()
 				trashes[str(scheduledHt)].draw()
@@ -316,7 +318,8 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			# count down if the option is accepted
 			if response == 1:
 				nCountDownFrame = math.ceil(scheduledHt / expInfo['frameDur'])
-				while frameIdx < nDecsFrame + nFbFrame + nCountDownFrame:
+				while (frameIdx < nDecsFrame + nFbFrame + nCountDownFrame) and realLeftTime > 0:
+					background.draw()
 					trashCan.draw()
 					countDownTime = (nDecsFrame + nFbFrame + nCountDownFrame - frameIdx) * expInfo['frameDur'] # time for the next win flip
 					trashes[str(math.floor(countDownTime))].draw()
@@ -365,16 +368,22 @@ def showTrial(win, expParas, expInfo, expHandler, stims, rwdSeq_, htSeq_, ifPrac
 			# give the feedback 
 			trialEarnText = visual.TextStim(win=win, ori=0,
 			text= '' + str(trialEarnings), font=u'Arial', bold = True, units='height',\
-			pos=[0, verCenter], height=0.1,color=[0.54509804, -0.78823529, -0.01960784], colorSpace='rgb') 		
+			pos=[0, verCenter + 0.05], height=0.1, color=[-1, -1, -1], colorSpace='rgb') 		
 			nFbFrameSelf = round(expParas['fbSelfSec'] / expInfo['frameDur'])
-			for frameIdx in range(nFbFrame):	
+			frameIdx = 0
+			while frameIdx < nFbFrame and realLeftTime > 0:	
+				background.draw()
 				if frameIdx < nFbFrameSelf:
-					fbCircle.draw()
-					trialEarnText.draw() 		
+					if trialEarnings == expParas['rwdHigh']:
+						bottlePicture.draw()
+					elif trialEarnings == expParas['rwdLow']:
+						canPicture.draw()
+					trialEarnText.draw()
 				drawTime(frameIdx, realLeftTime, ifPrac)
 				totalEarnText.draw()
 				realLeftTime = realLeftTime - expInfo['frameDur']
 				win.flip()
+				frameIdx += 1
 			# move to the next trial 
 			trialIdx = trialIdx + 1
 			

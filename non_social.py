@@ -29,7 +29,7 @@ expParas = sf.getExpParas()
 
 # collect participant info
 expName = 'Social_Forage'
-expInfo = {'participant':'test', 'social_info_condition':'0', 'background_condition':'0'}
+expInfo = {'participant':'test', 'social_info_condition':'0'}
 dlg = gui.DlgFromDict(dictionary=expInfo, title=expName)
 if dlg.OK == False:
     core.quit() 
@@ -37,22 +37,14 @@ expInfo['expName'] = expName
 expInfo['date'] = time.strftime("%d%m%Y")
 
 # setup the Window
-win = visual.Window(fullscr=True, screen=0,
-    allowGUI=False, allowStencil=False,
+win = visual.Window(fullscr=False, screen=0,
+    allowGUI=False, allowStencil=False, size = [800, 600], units = 'pix',
     monitor='testMonitor', colorSpace='rgb',
     blendMode='avg', useFBO=True, pos = [0, 0])
 
-if expInfo['background_condition'] == '0':
-    win.color = "grey"
-elif expInfo['background_condition'] == '1':
-    win.color = "black"
-else:
-    win.close()
-    core.quit()
 
 # create stimuli
-stims = sf.getStims(expParas, win)
-
+stims = sf.getStims(win, expParas)
 # save the frame rate of the monitor if we can measure it
 expInfo['frameRate']=win.getActualFrameRate()
 print('measured frame rate: ')
@@ -83,7 +75,6 @@ def quitFun():
     # add entries to the header file 
     thisHeader.addData("subId", expInfo['participant'])
     thisHeader.addData("socialCondition", expInfo['social_info_condition'])
-    thisHeader.addData("colorCondition", expInfo['background_condition'])
     thisHeader.addData("date", expInfo['date'])
     thisHeader.addData("frameDur", expInfo['frameDur'])
     thisHeader.addData("frameRate", expInfo['frameRate'])
@@ -113,7 +104,6 @@ thisExp = trialOutput['expHandler']
 totalPayments = sum(thisExp['trialEarnings']) / 20 
 thisHeader.addData("subId", expInfo['participant'])
 thisHeader.addData("socialCondition", expInfo['social_info_condition'])
-thisHeader.addData("colorCondition", expInfo['background_condition'])
 thisHeader.addData("date", expInfo['date'])
 thisHeader.addData("frameDur", expInfo['frameDur'])
 thisHeader.addData("frameRate", expInfo['frameRate'])
